@@ -349,6 +349,82 @@
     settings.stateImages = settings.stateImages || {};
     settings.stateImages[stateId] = publicData.publicUrl;
 
+      setMessage("photo-message-" + stateId, readError.message);
+      return;
+    }
+
+    const settings = settingsData?.settings || {};
+    settings.stateImages = settings.stateImages || {};
+    settings.stateImages[stateId] = publicData.publicUrl;
+
+    const { error: saveError } = await supabase
+      .from("site_settings")
+      .upsert({
+        id: "main",
+        settings: settings,
+        updated_at: new Date().toISOString()
+      });
+
+    if (saveError) {
+      setMessage("photo-message-" + stateId, saveError.message);
+      return;
+    }
+
+    setMessage("photo-message-" + stateId, "Photo uploaded successfully!");
+    await loadStatePhotos();
+  }
+
+  function setMessage(id, message) {
+    const element = $(id);
+    if (element) element.textContent = message;
+  }
+
+  // Load the photo manager when the Website Builder opens.
+  const statePhotoNav = document.querySelector(
+    '[data-view="website-builder"]'
+  );
+
+  if (statePhotoNav) {
+    statePhotoNav.addEventListener("click", () => {
+      setTimeout(loadStatePhotos, 100);
+    });
+  }
+
+.state-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.state-photo-card {
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.state-photo-preview {
+  width: 100%;
+  height: 160px;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.state-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media(max-width:600px) {
+  .state-photo-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
     const { error
   supabase.auth.getSession().then(async({data})=>{if(data.session)await enterApp(data.session.user);});
 })();
