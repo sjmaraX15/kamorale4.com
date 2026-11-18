@@ -241,6 +241,48 @@
       ]
     };
   }
+
+      setMessage("photo-message-" + stateId, readError.message);
+      return;
+    }
+
+    const settings = settingsData?.settings || {};
+    settings.stateImages = settings.stateImages || {};
+    settings.stateImages[stateId] = publicData.publicUrl;
+
+    const { error: saveError } = await supabase
+      .from("site_settings")
+      .upsert({
+        id: "main",
+        settings: settings,
+        updated_at: new Date().toISOString()
+      });
+
+    if (saveError) {
+      setMessage("photo-message-" + stateId, saveError.message);
+      return;
+    }
+
+    setMessage("photo-message-" + stateId, "Photo uploaded successfully!");
+    await loadStatePhotos();
+  }
+
+  function setMessage(id, message) {
+    const element = $(id);
+    if (element) element.textContent = message;
+  }
+
+  // Load the photo manager when the Website Builder opens.
+  const statePhotoNav = document.querySelector(
+    '[data-view="website-builder"]'
+  );
+
+  if (statePhotoNav) {
+    statePhotoNav.addEventListener("click", () => {
+      setTimeout(loadStatePhotos, 100);
+    });
+  }
+
   function normalizeSettings(raw) {
     const base=defaultSiteSettings();
     if(!raw || typeof raw!=="object") return base;
