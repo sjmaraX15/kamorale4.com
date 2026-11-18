@@ -1,3 +1,4 @@
+
 (() => {
   const cfg = window.K4N_CONFIG || {};
   const $ = (id) => document.getElementById(id);
